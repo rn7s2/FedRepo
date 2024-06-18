@@ -52,11 +52,7 @@ def construct_model(args):
         input_channel=input_channel,
     )
 
-    model = ClassifyNet(
-        net=args.net,
-        init_way="none",
-        n_classes=args.n_classes
-    )
+    model = ClassifyNet(net=args.net, init_way="none", n_classes=args.n_classes)
 
     return model
 
@@ -97,27 +93,13 @@ def construct_algo(args):
 
 def get_hypers(algo):
     if algo == "fedavg":
-        hypers = {
-            "cnt": 2,
-            "none": ["none"] * 2
-        }
+        hypers = {"cnt": 2, "none": ["none"] * 2}
     elif algo == "fedprox":
-        hypers = {
-            "cnt": 2,
-            "reg_way": ["fedprox"] * 2,
-            "reg_lamb": [1e-5, 1e-1]
-        }
+        hypers = {"cnt": 2, "reg_way": ["fedprox"] * 2, "reg_lamb": [1e-5, 1e-1]}
     elif algo == "fedmmd":
-        hypers = {
-            "cnt": 2,
-            "reg_way": ["fedmmd"] * 2,
-            "reg_lamb": [1e-2, 1e-3]
-        }
+        hypers = {"cnt": 2, "reg_way": ["fedmmd"] * 2, "reg_lamb": [1e-2, 1e-3]}
     elif algo == "scaffold":
-        hypers = {
-            "cnt": 2,
-            "glo_lr": [0.25, 0.5]
-        }
+        hypers = {"cnt": 2, "glo_lr": [0.25, 0.5]}
     elif algo == "fedopt":
         hypers = {
             "cnt": 2,
@@ -138,15 +120,9 @@ def get_hypers(algo):
             "aws_lr": [0.1, 0.01],
         }
     elif algo == "moon":
-        hypers = {
-            "cnt": 2,
-            "reg_lamb": [1e-4, 1e-2]
-        }
+        hypers = {"cnt": 2, "reg_lamb": [1e-4, 1e-2]}
     elif algo == "feddyn":
-        hypers = {
-            "cnt": 2,
-            "reg_lamb": [1e-3, 1e-2]
-        }
+        hypers = {"cnt": 2, "reg_lamb": [1e-3, 1e-2]}
     elif algo == "pfedme":
         hypers = {
             "cnt": 2,
@@ -217,12 +193,8 @@ def main_federated(para_dict):
     try:
         nc = int(args.dset_ratio * len(csets))
         clients = list(csets.keys())
-        sam_clients = np.random.choice(
-            clients, nc, replace=False
-        )
-        csets = {
-            c: info for c, info in csets.items() if c in sam_clients
-        }
+        sam_clients = np.random.choice(clients, nc, replace=False)
+        csets = {c: info for c, info in csets.items() if c in sam_clients}
 
         n_test = int(args.dset_ratio * len(gset.xs))
         inds = np.random.permutation(len(gset.xs))
@@ -238,26 +210,17 @@ def main_federated(para_dict):
     model = construct_model(args)
     print(model)
     print([name for name, _ in model.named_parameters()])
-    n_params = sum([
-        param.numel() for param in model.parameters()
-    ])
+    n_params = sum([param.numel() for param in model.parameters()])
     print("Total number of parameters : {}".format(n_params))
 
     if args.cuda:
         model = model.cuda()
 
     FedAlgo = construct_algo(args)
-    algo = FedAlgo(
-        csets=csets,
-        gset=gset,
-        model=model,
-        args=args
-    )
+    algo = FedAlgo(csets=csets, gset=gset, model=model, args=args)
     algo.train()
 
-    fpath = os.path.join(
-        save_dir, args.fname
-    )
+    fpath = os.path.join(save_dir, args.fname)
     algo.save_logs(fpath)
     print(algo.logs)
 
@@ -308,19 +271,34 @@ if __name__ == "__main__":
     setup_seed(seed=0)
 
     algos = [
-        "fedavg", "fedprox", "fedmmd", "scaffold",
-        "fedopt", "fednova", "fedaws", "moon",
-        "perfedavg", "pfedme",
-        "fedrs", "scaffoldrs", "fedphp",
+        "fedavg",
+        "fedprox",
+        "fedmmd",
+        "scaffold",
+        "fedopt",
+        "fednova",
+        "fedaws",
+        "moon",
+        "perfedavg",
+        "pfedme",
+        "fedrs",
+        "scaffoldrs",
+        "fedphp",
     ]
 
     algos = [
         "scaffoldrs",
-        "fedprox", "fedmmd", "fednova",
-        "fedaws", "moon",
-        "perfedavg", "pfedme",
+        "fedprox",
+        "fedmmd",
+        "fednova",
+        "fedaws",
+        "moon",
+        "perfedavg",
+        "pfedme",
     ]
 
-    for dataset in ["cifar100"]:
-        for algo in algos:
-            main_cifar_label(dataset, algo)
+    main_cifar_label("cifar10", "fedaws")
+
+    # for dataset in ["cifar100"]:
+    #     for algo in algos:
+    #         main_cifar_label(dataset, algo)

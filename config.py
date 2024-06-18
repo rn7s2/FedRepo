@@ -1,4 +1,3 @@
-
 default_param_dicts = {
     "famnist": {
         "dataset": ["famnist"],

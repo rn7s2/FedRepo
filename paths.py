@@ -4,7 +4,7 @@ data_dir = r"C:\Workspace\work\datasets"
 cur_dir = "./"
 
 if not os.path.exists(data_dir):
-    data_dir = "/home/lixc/datasets"
+    data_dir = "./datasets/datasets"
 
 cifar_fdir = os.path.join(data_dir, "Cifar")
 famnist_fdir = os.path.join(data_dir, "Fasion-MNIST")
@@ -20,13 +20,13 @@ cifar_fpaths = {
             os.path.join(cifar_fdir, "cifar10-train-part1.pkl"),
             os.path.join(cifar_fdir, "cifar10-train-part2.pkl"),
         ],
-        "test_fpath": os.path.join(cifar_fdir, "cifar10-test.pkl")
+        "test_fpath": os.path.join(cifar_fdir, "cifar10-test.pkl"),
     },
     "cifar100": {
         "train_fpaths": [
             os.path.join(cifar_fdir, "cifar100-train-part1.pkl"),
             os.path.join(cifar_fdir, "cifar100-train-part2.pkl"),
         ],
-        "test_fpath": os.path.join(cifar_fdir, "cifar100-test.pkl")
+        "test_fpath": os.path.join(cifar_fdir, "cifar100-test.pkl"),
     },
 }

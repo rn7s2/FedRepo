@@ -34,10 +34,8 @@ class SpreadModel(nn.Module):
         return loss
 
 
-class FedAws():
-    def __init__(
-        self, csets, gset, model, args
-    ):
+class FedAws:
+    def __init__(self, csets, gset, model, args):
         self.csets = csets
         self.gset = gset
         self.model = model
@@ -46,10 +44,9 @@ class FedAws():
         self.clients = list(csets.keys())
 
         # construct dataloaders
-        self.train_loaders, self.test_loaders, self.glo_test_loader = \
-            construct_dataloaders(
-                self.clients, self.csets, self.gset, self.args
-            )
+        self.train_loaders, self.test_loaders, self.glo_test_loader = construct_dataloaders(
+            self.clients, self.csets, self.gset, self.args
+        )
 
         self.logs = {
             "ROUNDS": [],
@@ -62,9 +59,7 @@ class FedAws():
         # Training
         for r in range(1, self.args.max_round + 1):
             n_sam_clients = int(self.args.c_ratio * len(self.clients))
-            sam_clients = np.random.choice(
-                self.clients, n_sam_clients, replace=False
-            )
+            sam_clients = np.random.choice(self.clients, n_sam_clients, replace=False)
 
             local_models = {}
 
@@ -109,25 +104,21 @@ class FedAws():
                 self.logs["GLO_TACCS"].append(glo_test_acc)
                 self.logs["LOCAL_TACCS"].extend(per_accs)
 
-                print("[R:{}] [Ls:{}] [TeAc:{}] [PAcBeg:{} PAcAft:{}]".format(
-                    r, train_loss, glo_test_acc, per_accs[0], per_accs[-1]
-                ))
+                print(
+                    "[R:{}] [Ls:{}] [TeAc:{}] [PAcBeg:{} PAcAft:{}]".format(
+                        r, train_loss, glo_test_acc, per_accs[0], per_accs[-1]
+                    )
+                )
 
     def update_local(self, r, model, train_loader, test_loader):
-        optimizer = construct_optimizer(
-            model, self.args.lr, self.args
-        )
+        optimizer = construct_optimizer(model, self.args.lr, self.args)
 
         if self.args.local_steps is not None:
             n_total_bs = self.args.local_steps
         elif self.args.local_epochs is not None:
-            n_total_bs = max(
-                int(self.args.local_epochs * len(train_loader)), 5
-            )
+            n_total_bs = max(int(self.args.local_epochs * len(train_loader)), 5)
         else:
-            raise ValueError(
-                "local_steps and local_epochs must not be None together"
-            )
+            raise ValueError("local_steps and local_epochs must not be None together")
 
         model.train()
 
@@ -149,10 +140,10 @@ class FedAws():
 
             model.train()
             try:
-                batch_x, batch_y = loader_iter.next()
+                batch_x, batch_y = next(loader_iter)
             except Exception:
                 loader_iter = iter(train_loader)
-                batch_x, batch_y = loader_iter.next()
+                batch_x, batch_y = next(loader_iter)
 
             if self.args.cuda:
                 batch_x, batch_y = batch_x.cuda(), batch_y.cuda()
@@ -164,9 +155,7 @@ class FedAws():
 
             optimizer.zero_grad()
             loss.backward()
-            nn.utils.clip_grad_norm_(
-                model.parameters(), self.args.max_grad_norm
-            )
+            nn.utils.clip_grad_norm_(model.parameters(), self.args.max_grad_norm)
             optimizer.step()
 
             avg_loss.add(loss.item())
@@ -196,9 +185,7 @@ class FedAws():
         ws = model.classifier.weight.data
         sm = SpreadModel(ws, margin=self.args.margin)
 
-        optimizer = torch.optim.SGD(
-            sm.parameters(), lr=self.args.aws_lr, momentum=0.9
-        )
+        optimizer = torch.optim.SGD(sm.parameters(), lr=self.args.aws_lr, momentum=0.9)
 
         for _ in range(self.args.aws_steps):
             loss = sm.forward()
